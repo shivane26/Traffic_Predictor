@@ -1,0 +1,6 @@
+Flask
+Werkzeug
+ultralytics
+opencv-python
+numpy
+gunicorn
