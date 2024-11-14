@@ -51,8 +51,45 @@ def upload_file():
 
 # Function to process the uploaded video and detect traffic signs
 def process_video(video_path):
-    # Video processing logic remains here...
-    pass
+    # Load the video
+    video_capture = cv2.VideoCapture(video_path)
+    width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = int(video_capture.get(cv2.CAP_PROP_FPS))
+    
+    # Define the codec and create a VideoWriter object for saving the processed video
+    processed_video_path = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_' + os.path.basename(video_path))
+    video_writer = cv2.VideoWriter(processed_video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
+    
+    while video_capture.isOpened():
+        ret, frame = video_capture.read()
+        if not ret:
+            break
+
+        # Run YOLO model on the current frame
+        results = model.predict(frame)
+
+        # Draw bounding boxes and labels on the frame
+        for result in results:
+            for box in result.boxes:
+                x1, y1, x2, y2 = map(int, box.xyxy[0])  # Coordinates for the bounding box
+                confidence = box.conf[0]  # Confidence score
+                class_id = int(box.cls[0])  # Class ID
+
+                # Draw rectangle and add label
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                label = f"{model.names[class_id]}: {confidence:.2f}"
+                cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        # Write the processed frame to the output video
+        video_writer.write(frame)
+
+    # Release resources
+    video_capture.release()
+    video_writer.release()
+    
+    return processed_video_path
+
 
 # Run the app with dynamic port and host
 if __name__ == '__main__':
