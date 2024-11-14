@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Sign Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload a Video for Traffic Sign Detection</h1>
+        
+        <!-- Video upload form -->
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <label for="video">Choose a video to upload:</label>
+            <input type="file" name="video" id="video" accept="video/mp4, video/x-m4v, video/*" required>
+            <br><br>
+            <button type="submit">Upload Video</button>
+        </form>
+
+        {% if video_url %}
+            <h2>Video Upload Success!</h2>
+            <video width="600" controls>
+                <source src="{{ video_url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <br><br>
+            <form action="/upload" method="GET">
+                <button type="submit">Finish and Upload Another Video</button>
+            </form>
+        {% endif %}
+    </div>
+</body>
+</html>
+
